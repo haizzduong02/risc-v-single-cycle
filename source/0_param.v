@@ -1,9 +1,3 @@
-
-`define ALU_DATA_LEN    32
-`define ALU_SEL_LEN     4
-`define SHAMT_LEN       5
-
-
 `define ALU_ADD         4'b0000
 `define ALU_SUB         4'b0001
 `define ALU_AND         4'b0010
@@ -14,3 +8,15 @@
 `define ALU_SLL         4'b0111
 `define ALU_SRL         4'b1000
 `define ALU_SRA         4'b1001
+
+`define OP_R            7'b0110011
+`define OP_I_ALU        7'b0010011
+`define OP_I_JALR       7'b1100111
+`define OP_I_LOAD       7'b0000011
+`define OP_I_F          7'b0001111
+`define OP_I_SYS        7'b1110011
+`define OP_S            7'b0100011
+`define OP_SB           7'b1100011
+`define OP_U_AUIPC      7'b0010111
+`define OP_U_LUI        7'b0110111
+`define OP_UJ           7'b1101111
