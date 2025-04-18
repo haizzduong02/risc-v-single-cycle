@@ -1,5 +1,5 @@
 module mux21_n #(
-    parameter DLEN = 32;
+    parameter DLEN = 32
 ) (
     dout,
 
@@ -9,8 +9,8 @@ module mux21_n #(
 );
     output  reg [DLEN-1:0]  dout    ;
 
-    input       [DLEN-1:0]  dinn    ;
-    input       [DLEN-1:0]  dinp    ;
+    input       [DLEN-1:0]  din1    ;
+    input       [DLEN-1:0]  din0    ;
     input                   sel     ;
 
     always @* begin

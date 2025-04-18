@@ -1,5 +1,5 @@
 module mux41_n #(
-    parameter DLEN = 32;
+    parameter DLEN = 32
 ) (
     dout,
 
