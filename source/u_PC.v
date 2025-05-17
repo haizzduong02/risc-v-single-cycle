@@ -3,8 +3,8 @@ module PC (
 
     input       [31:0]  pc_next,
     input               clk,
-    input               en
-    ,input               rst_n
+    input               en,
+    input               rst_n
 );
     d_ff_arstn_en # (
         .DATA_WIDTH (32)
