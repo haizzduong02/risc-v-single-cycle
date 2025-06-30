@@ -1,4 +1,4 @@
-module RISCV_Sigle_Cycle (
+module RISCV_Single_Cycle (
     input       clk,
     input       rst_n
 );
