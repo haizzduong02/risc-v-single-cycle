@@ -80,7 +80,6 @@ module single_cycle_riscv_processor (
 
     DMEM DMEM_inst (
         .dataR      (mem_data),
-        .memory     (dmemory),
         .addr       (ALU_result),
         .dataW      (rs2),
         .load_sel   (load_sel),
