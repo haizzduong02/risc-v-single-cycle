@@ -8,7 +8,7 @@ module IMEM #(
     reg [7:0] memory [0:MEM_NBYTE-1];
 
     always @(*) begin
-        inst = {[addr+3], memory[addr+2], memory[addr+1], memory[addr]};
+        inst = {memory[addr+3], memory[addr+2], memory[addr+1], memory[addr]};
     end
 
     // initial begin
