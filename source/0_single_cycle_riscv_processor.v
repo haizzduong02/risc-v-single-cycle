@@ -28,7 +28,7 @@ module single_cycle_riscv_processor (
         .en         (pc_en),
         .rst_n      (rst_n)
     );
-    IMEM IMEM_i (
+    IMEM IMEM_inst (
         .inst       (inst),
         .addr       (pc)
     );
@@ -77,7 +77,7 @@ module single_cycle_riscv_processor (
         .srcB       (ALU_src_B),
         .ALU_sel    (ALU_sel)
     );
-    DMEM DMEM_i (
+    DMEM DMEM_inst (
         .dataR      (mem_data),
         .addr       (ALU_result),
         .dataW      (rs2),

@@ -13,7 +13,7 @@ module DMEM #(
     input               wr_en,
     input               rst_n
 );
-    reg [7:0] dmem [0:MEM_NBYTE-1];
+    reg [7:0] memory [0:MEM_NBYTE-1];
     integer i;
     
     always @(*) begin
