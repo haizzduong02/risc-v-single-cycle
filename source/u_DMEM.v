@@ -4,7 +4,6 @@ module DMEM #(
     parameter MEM_NBYTE = 1024
 ) (
     output  reg [31:0]  dataR,
-
     input       [31:0]  addr,
     input       [31:0]  dataW,
     input       [2:0]   load_sel,
@@ -13,57 +12,77 @@ module DMEM #(
     input               wr_en,
     input               rst_n
 );
-    // Byte-addressed memory
-    reg [7:0] memory_raw [0:MEM_NBYTE-1];
-
-    // Word-view memory (to support testbench access like memory[addr >> 2])
-    wire [31:0] memory [0:(MEM_NBYTE/4)-1];
-
-    // Reconstruct 32-bit word view for read
-    genvar i;
-    generate
-        for (i = 0; i < MEM_NBYTE/4; i = i + 1) begin : gen_word_view
-            assign memory[i] = {
-                memory_raw[i*4 + 3],
-                memory_raw[i*4 + 2],
-                memory_raw[i*4 + 1],
-                memory_raw[i*4 + 0]
-            };
-        end
-    endgenerate
-
-    // Read path (byte-based)
+    localparam MEM_NWORD = MEM_NBYTE / 4;
+    reg [31:0] memory [0:MEM_NWORD-1];
+    wire [31:2] word_addr = addr[31:2];
+    wire [1:0]  byte_offset = addr[1:0];
+    integer i;
+    
+    // Combinational read
     always @(*) begin
         case (load_sel)
-            `LOAD_SEL_B:  dataR = {{24{memory_raw[addr][7]}}, memory_raw[addr]};
-            `LOAD_SEL_BU: dataR = {{24{1'b0}}, memory_raw[addr]};
-            `LOAD_SEL_H:  dataR = {{16{memory_raw[addr+1][7]}}, memory_raw[addr+1], memory_raw[addr]};
-            `LOAD_SEL_HU: dataR = {{16{1'b0}}, memory_raw[addr+1], memory_raw[addr]};
-            `LOAD_SEL_W:  dataR = {memory_raw[addr+3], memory_raw[addr+2], memory_raw[addr+1], memory_raw[addr]};
-            default:      dataR = 32'b0;
+            `LOAD_SEL_B: begin
+                case (byte_offset)
+                    2'b00: dataR = {{24{memory[word_addr][7]}},  memory[word_addr][7:0]};
+                    2'b01: dataR = {{24{memory[word_addr][15]}}, memory[word_addr][15:8]};
+                    2'b10: dataR = {{24{memory[word_addr][23]}}, memory[word_addr][23:16]};
+                    2'b11: dataR = {{24{memory[word_addr][31]}}, memory[word_addr][31:24]};
+                endcase
+            end
+            `LOAD_SEL_BU: begin
+                case (byte_offset)
+                    2'b00: dataR = {24'b0, memory[word_addr][7:0]};
+                    2'b01: dataR = {24'b0, memory[word_addr][15:8]};
+                    2'b10: dataR = {24'b0, memory[word_addr][23:16]};
+                    2'b11: dataR = {24'b0, memory[word_addr][31:24]};
+                endcase
+            end
+            `LOAD_SEL_H: begin
+                case (byte_offset)
+                    2'b00: dataR = {{16{memory[word_addr][15]}}, memory[word_addr][15:0]};
+                    2'b10: dataR = {{16{memory[word_addr][31]}}, memory[word_addr][31:16]};
+                    default: dataR = 32'b0; // Unaligned not supported
+                endcase
+            end
+            `LOAD_SEL_HU: begin
+                case (byte_offset)
+                    2'b00: dataR = {16'b0, memory[word_addr][15:0]};
+                    2'b10: dataR = {16'b0, memory[word_addr][31:16]};
+                    default: dataR = 32'b0; // Unaligned not supported
+                endcase
+            end
+            `LOAD_SEL_W: 
+                dataR = (byte_offset == 2'b00) ? memory[word_addr] : 32'b0;
+            default: 
+                dataR = 32'b0;
         endcase
     end
 
-    // Write path
-    integer j;
+    // Synchronous write
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            for (j = 0; j < MEM_NBYTE; j = j + 1) begin
-                memory_raw[j] <= 8'b0;
-            end
+            for (i = 0; i < MEM_NWORD; i = i + 1)
+                memory[i] <= 32'b0;
         end else if (wr_en == `MEM_WRITE) begin
             case (store_sel)
-                `STORE_SEL_B: memory_raw[addr] <= dataW[7:0];
+                `STORE_SEL_B: begin
+                    case (byte_offset)
+                        2'b00: memory[word_addr][7:0]   <= dataW[7:0];
+                        2'b01: memory[word_addr][15:8]  <= dataW[7:0];
+                        2'b10: memory[word_addr][23:16] <= dataW[7:0];
+                        2'b11: memory[word_addr][31:24] <= dataW[7:0];
+                    endcase
+                end
                 `STORE_SEL_H: begin
-                    memory_raw[addr]     <= dataW[7:0];
-                    memory_raw[addr+1]   <= dataW[15:8];
+                    case (byte_offset)
+                        2'b00: memory[word_addr][15:0] <= dataW[15:0];
+                        2'b10: memory[word_addr][31:16] <= dataW[15:0];
+                        default: ; // Unaligned not supported
+                    endcase
                 end
-                `STORE_SEL_W: begin
-                    memory_raw[addr]     <= dataW[7:0];
-                    memory_raw[addr+1]   <= dataW[15:8];
-                    memory_raw[addr+2]   <= dataW[23:16];
-                    memory_raw[addr+3]   <= dataW[31:24];
-                end
+                `STORE_SEL_W: 
+                    if (byte_offset == 2'b00)
+                        memory[word_addr] <= dataW;
                 default: ;
             endcase
         end
