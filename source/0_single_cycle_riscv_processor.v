@@ -28,9 +28,11 @@ module single_cycle_riscv_processor (
         .en         (pc_en),
         .rst_n      (rst_n)
     );
-
-    wire [ 7:0]  imemory  [0:MEM_NBYTE-1];
-    IMEM IMEM_inst (
+    parameter IMEM_BYTE = 1024;
+    wire [ 7:0]  imemory  [0:IMEM_BYTE-1];
+    IMEM # (
+        .MEM_NBYTE(IMEM_BYTE)
+    ) IMEM_inst (
         .inst       (inst),
         .imemory    (memory),
         .addr       (pc)
@@ -80,9 +82,11 @@ module single_cycle_riscv_processor (
         .srcB       (ALU_src_B),
         .ALU_sel    (ALU_sel)
     );
-
-    wire [7:0]  dmemory  [0:MEM_NBYTE-1];
-    DMEM DMEM_inst (
+    parameter DMEM_BYTE = 1024;
+    wire [7:0]  dmemory  [0:DMEM_BYTE-1];
+    DMEM # (
+        .MEM_NBYTE(DMEM_BYTE)
+    ) DMEM_inst (
         .dataR      (mem_data),
         .memory     (dmemory),
         .addr       (ALU_result),
