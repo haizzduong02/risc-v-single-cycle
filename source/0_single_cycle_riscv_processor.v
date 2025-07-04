@@ -3,7 +3,6 @@ module RISCV_Single_Cycle (
     input       rst_n
 );
     wire pc_en = 1'b1;
-
     wire [31:0] pc_next, pc;
     wire [31:0] inst, imm;
     wire [31:0] Instruction_out_top;
@@ -22,7 +21,6 @@ module RISCV_Single_Cycle (
     wire reg_wr_en, br_un, mem_rw;
     wire br_lt, br_eq;
 
-
     PC PC_i (
         .pc         (pc),
         .pc_next    (pc_next),
@@ -30,15 +28,18 @@ module RISCV_Single_Cycle (
         .en         (pc_en),
         .rst_n      (rst_n)
     );
+    
     IMEM IMEM_inst (
         .inst       (inst),
         .addr       (pc)
     );
+    
     ImmGen ImmGen_i (
         .imm        (imm),
         .inst       (inst),
         .imm_sel    (imm_sel)
     );
+    
     RegFile RegFile_i (
         .dataA      (rs1),
         .dataB      (rs2),
@@ -50,6 +51,7 @@ module RISCV_Single_Cycle (
         .wr_en      (reg_wr_en),
         .rst_n      (rst_n)
     );
+    
     mux_2x1 #(
         .DATA_WIDTH (32)
     ) mux_A (
@@ -58,6 +60,7 @@ module RISCV_Single_Cycle (
         .din_1      (pc),
         .sel        (A_sel)
     );
+    
     mux_2x1 #(
         .DATA_WIDTH (32)
     ) mux_B (
@@ -66,6 +69,7 @@ module RISCV_Single_Cycle (
         .din_1      (imm),
         .sel        (B_sel)
     );
+    
     BranchComp BranchComp_i (
         .br_eq      (br_eq),
         .br_lt      (br_lt),
@@ -73,6 +77,7 @@ module RISCV_Single_Cycle (
         .rs2        (rs2),
         .br_un      (br_un)
     );
+    
     ALU ALU_i (
         .result     (ALU_result),
         .srcA       (ALU_src_A),
@@ -90,6 +95,7 @@ module RISCV_Single_Cycle (
         .rst_n      (rst_n),
         .wr_en      (mem_rw)
     );
+    
     mux_4x1 #(
         .DATA_WIDTH (32)
     ) mux_wb (
@@ -97,16 +103,18 @@ module RISCV_Single_Cycle (
         .din_00     (mem_data),
         .din_01     (ALU_result),
         .din_10     (pc_4),
-        .din_11     ({32{1'b0}}),
+        .din_11     (32'b0),
         .sel        (wb_sel)
     );
+    
     adder #(
         .DATA_WIDTH (32)
     ) adder_pc (
         .dout       (pc_4),
         .din_a      (pc),
-        .din_b      (4)
+        .din_b      (32'd4)
     );
+    
     mux_2x1 #(
         .DATA_WIDTH (32)
     ) mux_pc (
@@ -115,6 +123,7 @@ module RISCV_Single_Cycle (
         .din_1      (ALU_result),
         .sel        (PC_sel)
     );
+    
     ControlLogic ControlLogic_i (
         .PC_sel     (PC_sel),
         .imm_sel    (imm_sel),

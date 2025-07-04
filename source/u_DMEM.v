@@ -1,5 +1,3 @@
-`include "0_macro.v"
-
 module DMEM #(
     parameter MEM_NBYTE = 1024
 ) (
@@ -18,7 +16,7 @@ module DMEM #(
     wire [1:0]  byte_offset = addr[1:0];
     integer i;
     
-    // Combinational read
+    // Combinational read with sign/zero extension
     always @(*) begin
         case (load_sel)
             `LOAD_SEL_B: begin
@@ -58,7 +56,7 @@ module DMEM #(
         endcase
     end
 
-    // Synchronous write
+    // Synchronous write with byte/halfword masking
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             for (i = 0; i < MEM_NWORD; i = i + 1)
