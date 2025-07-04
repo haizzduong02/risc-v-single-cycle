@@ -1,4 +1,4 @@
-module single_cycle_riscv_processor (
+module RISCV_Single_Cycle (
     input       clk,
     input       rst_n
 );
