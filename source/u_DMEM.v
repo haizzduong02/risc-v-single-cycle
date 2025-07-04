@@ -1,3 +1,5 @@
+`include "0_macro.v"
+
 module DMEM #(
     parameter MEM_NBYTE = 1024
 ) (
@@ -16,7 +18,7 @@ module DMEM #(
     wire [1:0]  byte_offset = addr[1:0];
     integer i;
     
-    // Combinational read with sign/zero extension
+    // Combinational read
     always @(*) begin
         case (load_sel)
             `LOAD_SEL_B: begin
@@ -39,24 +41,24 @@ module DMEM #(
                 case (byte_offset)
                     2'b00: dataR = {{16{memory[word_addr][15]}}, memory[word_addr][15:0]};
                     2'b10: dataR = {{16{memory[word_addr][31]}}, memory[word_addr][31:16]};
-                    default: dataR = 32'b0; // Unaligned not supported
+                    default: dataR = 32'b0;
                 endcase
             end
             `LOAD_SEL_HU: begin
                 case (byte_offset)
                     2'b00: dataR = {16'b0, memory[word_addr][15:0]};
                     2'b10: dataR = {16'b0, memory[word_addr][31:16]};
-                    default: dataR = 32'b0; // Unaligned not supported
+                    default: dataR = 32'b0;
                 endcase
             end
             `LOAD_SEL_W: 
-                dataR = (byte_offset == 2'b00) ? memory[word_addr] : 32'b0;
+                dataR = memory[word_addr];
             default: 
                 dataR = 32'b0;
         endcase
     end
 
-    // Synchronous write with byte/halfword masking
+    // Synchronous write
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             for (i = 0; i < MEM_NWORD; i = i + 1)
@@ -75,12 +77,11 @@ module DMEM #(
                     case (byte_offset)
                         2'b00: memory[word_addr][15:0] <= dataW[15:0];
                         2'b10: memory[word_addr][31:16] <= dataW[15:0];
-                        default: ; // Unaligned not supported
+                        default: ; 
                     endcase
                 end
                 `STORE_SEL_W: 
-                    if (byte_offset == 2'b00)
-                        memory[word_addr] <= dataW;
+                    memory[word_addr] <= dataW;
                 default: ;
             endcase
         end
