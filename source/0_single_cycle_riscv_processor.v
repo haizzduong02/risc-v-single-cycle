@@ -6,6 +6,8 @@ module RISCV_Single_Cycle (
 
     wire [31:0] pc_next, pc;
     wire [31:0] inst, imm;
+    wire [31:0] Instruction_out_top;
+    assign Instruction_out_top = inst;
     wire [31:0] rs1, rs2;
     wire [31:0] ALU_src_A, ALU_src_B;
     wire [31:0] ALU_result, mem_data, pc_4;
