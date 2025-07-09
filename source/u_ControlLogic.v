@@ -2,16 +2,16 @@
 
 module ControlLogic (
     output  reg         PC_sel,
-    output  reg [2:0]   imm_sel,
+    output  reg [ 2:0]  imm_sel,
     output  reg         reg_wr_en,
     output  reg         br_un,
     output  reg         B_sel,
     output  reg         A_sel,
-    output  reg [3:0]   ALU_sel,
+    output  reg [ 3:0]  ALU_sel,
     output  reg         mem_rw,
-    output  reg [2:0]   load_sel,
-    output  reg [1:0]   store_sel,
-    output  reg [1:0]   wb_sel,
+    output  reg [ 2:0]  load_sel,
+    output  reg [ 1:0]  store_sel,
+    output  reg [ 1:0]  wb_sel,
 
     input       [31:0]  inst,
     input               br_eq,
