@@ -34,13 +34,28 @@ module DMEM #(
             for (i = 0; i < MEM_DEPTH; i = i + 1) begin
                 memory[i] <= {32{1'b0}};
             end
-        end else begin
-            if (wr_en == `MEM_WRITE) begin
+        end else if (wr_en == `MEM_WRITE) begin
+            if (addr[31:2] < MEM_DEPTH) begin
                 case (store_sel)
-                    `STORE_SEL_B:   memory[addr[31:2]][7:0]     <= data_w[7:0];
-                    `STORE_SEL_H:   memory[addr[31:2]][15:0]    <= data_w[15:0];
-                    `STORE_SEL_W:   memory[addr[31:2]]          <= data_w;
-                    default:        ;
+                    `STORE_SEL_B: begin
+                        case (addr[1:0])
+                            2'b00: memory[addr[31:2]][7:0]   <= data_w[7:0];
+                            2'b01: memory[addr[31:2]][15:8]  <= data_w[7:0];
+                            2'b10: memory[addr[31:2]][23:16] <= data_w[7:0];
+                            2'b11: memory[addr[31:2]][31:24] <= data_w[7:0];
+                        endcase
+                    end
+                    `STORE_SEL_H: begin
+                        case (addr[1:0])
+                            2'b00: memory[addr[31:2]][15:0]  <= data_w[15:0];
+                            2'b10: memory[addr[31:2]][31:16] <= data_w[15:0];
+                            default: ; 
+                        endcase
+                    end
+                    `STORE_SEL_W: begin
+                        memory[addr[31:2]] <= data_w;
+                    end
+                    default: ;
                 endcase
             end
         end
