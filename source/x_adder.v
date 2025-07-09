@@ -1,5 +1,5 @@
 module adder #(
-    parameter DATA_WIDTH = 32
+    parameter                       DATA_WIDTH = 32
 ) (
     output  reg [DATA_WIDTH-1:0]    dout,
 

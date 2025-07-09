@@ -3,9 +3,9 @@ module RegFile (
     output  reg [31:0]  dataB,
 
     input       [31:0]  dataD,
-    input       [4:0]   addrD,
-    input       [4:0]   addrA,
-    input       [4:0]   addrB,
+    input       [ 4:0]  addrD,
+    input       [ 4:0]  addrA,
+    input       [ 4:0]  addrB,
     input               clk,
     input               wr_en,
     input               rst_n

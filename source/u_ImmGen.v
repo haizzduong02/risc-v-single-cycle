@@ -4,7 +4,7 @@ module ImmGen (
     output  reg [31:0]  imm,
 
     input       [31:0]  inst,
-    input       [2:0]   imm_sel
+    input       [ 2:0]  imm_sel
 );
     always @(*) begin
         case (imm_sel)
